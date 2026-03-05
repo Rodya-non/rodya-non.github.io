@@ -7,13 +7,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // - image: 仅图片背景
     // - auto : 若“省流量/减少动态效果”则用图片，否则用视频
     const MOBILE_BREAKPOINT_PX = 720;
-    const THEME_BG_MODE_DESKTOP = 'video'; // 'video' | 'image' | 'auto'
-    const THEME_BG_MODE_MOBILE = 'video';  // 'video' | 'image' | 'auto'
+    const THEME_BG_MODE_DESKTOP = 'image'; // 'video' | 'image' | 'auto'
+    const THEME_BG_MODE_MOBILE = 'image';  // 'video' | 'image' | 'auto'
 
     // 资源路径（相对 docs/）
-    const THEME_BG_IMAGE_DESKTOP = '/img/电脑2.jpg';
+    const THEME_BG_IMAGE_DESKTOP = '/img/war.jpg';
     const THEME_BG_VIDEO_DESKTOP = '/img/电脑1.mp4';
-    const THEME_BG_IMAGE_MOBILE = '/img/手机1.jpg'; // 建议换更小体积的图片
+    const THEME_BG_IMAGE_MOBILE = '/img/war.jpg'; // 建议换更小体积的图片
     const THEME_BG_VIDEO_MOBILE = '/img/手机2.mp4'; // 手机端如需视频可换更小体积
 
     // 更稳：优先使用 currentScript（某些环境 querySelector 取不到自己）
@@ -374,26 +374,11 @@ document.addEventListener('DOMContentLoaded', function() {
         .pagination a:hover, .pagination a:focus, .pagination span:hover, .pagination span:focus, .pagination em:hover, .pagination em:focus {
             border-color: rebeccapurple;
         }
-
-        /* 赞助商信息样式 */
-        .sponsor-info {
-            text-align: center;
-            margin-top: 20px;
-            font-size: small;
-            color: #666;
-        }
         `;
         document.head.appendChild(style);
         ensureBackgroundVideo();
         ensureBackgroundOverlay();
         ensureGlassShell();
-
-        // 添加赞助商信息到页脚
-        let footer = document.getElementById('footer');
-        let sponsorInfo = document.createElement('div');
-        sponsorInfo.className = 'sponsor-info';
-        sponsorInfo.innerHTML = '本站由 <a target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="../img/logo.png" width="45" height="13" style="fill: currentColor;"></a> 提供 CDN 加速/云存储服务';
-        footer.insertBefore(sponsorInfo, footer.firstChild);
     }
 
 
