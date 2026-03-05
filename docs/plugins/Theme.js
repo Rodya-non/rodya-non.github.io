@@ -1,12 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {    
     let currentUrl = window.location.pathname;
+    //let currentHost = window.location.hostname;
 
-    // 背景配置：仅支持图片（桌面端/手机端单独配置）
+    // 背景配置：支持图片/视频/自动（桌面端/手机端可单独配置）
+    // - video: 优先视频（图片作为加载/失败兜底）
+    // - image: 仅图片背景
+    // - auto : 若“省流量/减少动态效果”则用图片，否则用视频
     const MOBILE_BREAKPOINT_PX = 720;
+    const THEME_BG_MODE_DESKTOP = 'video'; // 'video' | 'image' | 'auto'
+    const THEME_BG_MODE_MOBILE = 'video';  // 'video' | 'image' | 'auto'
 
     // 资源路径（相对 docs/）
-    const THEME_BG_IMAGE_DESKTOP = '/img/war.jpg';
-    const THEME_BG_IMAGE_MOBILE = '/img/war.jpg'; // 建议换更小体积的图片
+    const THEME_BG_IMAGE_DESKTOP = '/img/电脑2.jpg';
+    const THEME_BG_VIDEO_DESKTOP = '/img/电脑1.mp4';
+    const THEME_BG_IMAGE_MOBILE = '/img/手机1.jpg'; // 建议换更小体积的图片
+    const THEME_BG_VIDEO_MOBILE = '/img/手机2.mp4'; // 手机端如需视频可换更小体积
 
     // 更稳：优先使用 currentScript（某些环境 querySelector 取不到自己）
     const themeScriptSrc = (document.currentScript && document.currentScript.src)
@@ -37,7 +45,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const bgImageDesktopUrl = absUrl(THEME_BG_IMAGE_DESKTOP);
+    const bgVideoDesktopUrl = absUrl(THEME_BG_VIDEO_DESKTOP);
     const bgImageMobileUrl = absUrl(THEME_BG_IMAGE_MOBILE);
+    const bgVideoMobileUrl = absUrl(THEME_BG_VIDEO_MOBILE);
 
     function isMobileViewport() {
         try {
@@ -51,11 +61,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function currentBgMode() {
+        return isMobileViewport() ? THEME_BG_MODE_MOBILE : THEME_BG_MODE_DESKTOP;
+    }
+
+    function shouldUseVideoBackground() {
+        const mode = currentBgMode();
+        if (mode === 'video') return true;
+        if (mode === 'image') return false;
+        // auto
+        try {
+            const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const saveData = navigator.connection && navigator.connection.saveData;
+            return !(prefersReducedMotion || saveData);
+        } catch (e) {
+            return true;
+        }
+    }
+
     function ensureBackgroundOverlay() {
         if (document.getElementById('bgOverlay')) return;
         const overlay = document.createElement('div');
         overlay.id = 'bgOverlay';
-        document.body.insertBefore(overlay, document.body.firstChild);
+
+        const bgVideo = document.getElementById('bgVideo');
+        if (bgVideo && bgVideo.parentNode) {
+            bgVideo.insertAdjacentElement('afterend', overlay);
+        } else {
+            document.body.insertBefore(overlay, document.body.firstChild);
+        }
     }
 
     function ensureGlassShell() {
@@ -67,14 +101,53 @@ document.addEventListener('DOMContentLoaded', function() {
         for (const node of nodes) {
             if (node && node.nodeType === 1) {
                 const el = node;
-                if (el.id === 'bgOverlay') continue;
+                if (el.id === 'bgVideo' || el.id === 'bgOverlay') continue;
             }
             shell.appendChild(node);
         }
         document.body.appendChild(shell);
     }
 
+    function ensureBackgroundVideo() {
+        if (!shouldUseVideoBackground()) return;
+        if (document.getElementById('bgVideo')) return;
+
+        let bgVideo = document.createElement('video');
+        bgVideo.id = 'bgVideo';
+        bgVideo.src = isMobileViewport() ? bgVideoMobileUrl : bgVideoDesktopUrl;
+        bgVideo.autoplay = true;
+        bgVideo.loop = true;
+        bgVideo.muted = true;
+        bgVideo.playsInline = true;
+        bgVideo.controls = false;
+        bgVideo.setAttribute('controlsList', 'nodownload noplaybackrate noremoteplayback');
+        bgVideo.disablePictureInPicture = true;
+        // 右键菜单屏蔽（即使某些浏览器仍可触发）
+        bgVideo.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+        // 视频未就绪前先显示图片背景；如果失败则移除视频，让图片背景露出来
+        bgVideo.addEventListener('loadeddata', function () {
+            bgVideo.classList.add('is-ready');
+        });
+        bgVideo.addEventListener('error', function () {
+            try { bgVideo.remove(); } catch (e) {}
+        });
+
+        document.body.insertBefore(bgVideo, document.body.firstChild);
+
+        // 某些环境下 autoplay 仍可能被阻止，失败就移除视频（回退到图片）
+        try {
+            const p = bgVideo.play && bgVideo.play();
+            if (p && typeof p.catch === 'function') {
+                p.catch(function () {
+                    try { bgVideo.remove(); } catch (e) {}
+                });
+            }
+        } catch (e) {}
+    }
+
     //主页主题------------------------------------------------------------------------------
+    
     if (currentUrl == '/' || currentUrl.includes('/index.html') || currentUrl.includes('/page')) {
         console.log('应用主页主题');
         let style = document.createElement("style");
@@ -165,6 +238,24 @@ document.addEventListener('DOMContentLoaded', function() {
             html {
                 background-image: url('${bgImageMobileUrl}');
             }
+        }
+
+        /* 背景视频 */
+        #bgVideo {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            object-fit: cover;
+            background: #000;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            pointer-events: none; /* 避免悬浮出现任何控件/交互 */
+        }
+
+        #bgVideo.is-ready {
+            opacity: 1;
         }
 
         /* 背景遮罩（简洁 + 强玻璃拟态基础） */
@@ -267,13 +358,33 @@ document.addEventListener('DOMContentLoaded', function() {
             -webkit-backdrop-filter: blur(10px) saturate(1.15);
         }
 
+        /* 鼠标放到博客标题后会高亮 */
+        .SideNav-item:hover {
+            background: linear-gradient(135deg, rgba(195, 228, 227, 0.72), rgba(255, 255, 255, 0.55));
+            border-radius: 12px;
+            transform: translateY(-1px) scale(1.01);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.16);
+        }
+
+        .SideNav-item {
+            transition: 0.18s ease;
+        }
+
         /* 分页条 */
         .pagination a:hover, .pagination a:focus, .pagination span:hover, .pagination span:focus, .pagination em:hover, .pagination em:focus {
             border-color: rebeccapurple;
         }
 
         /* 赞助商信息样式 */
+        .sponsor-info {
+            text-align: center;
+            margin-top: 20px;
+            font-size: small;
+            color: #666;
+        }
+        `;
         document.head.appendChild(style);
+        ensureBackgroundVideo();
         ensureBackgroundOverlay();
         ensureGlassShell();
 
@@ -285,12 +396,15 @@ document.addEventListener('DOMContentLoaded', function() {
         footer.insertBefore(sponsorInfo, footer.firstChild);
     }
 
+
     //文章页主题------------------------------------------------------------------------------
+    
     else if (currentUrl.includes('/post/') || currentUrl.includes('/link.html') || currentUrl.includes('/about.html')) {
         console.log('文章页主题');
 
         let style = document.createElement("style");
         style.innerHTML = `
+
         html {    
             background: url('${bgImageDesktopUrl}') no-repeat center center fixed;
             background-size: cover;
@@ -300,6 +414,24 @@ document.addEventListener('DOMContentLoaded', function() {
             html {
                 background-image: url('${bgImageMobileUrl}');
             }
+        }
+
+        /* 背景视频 */
+        #bgVideo {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            object-fit: cover;
+            background: #000;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            pointer-events: none;
+        }
+
+        #bgVideo.is-ready {
+            opacity: 1;
         }
 
         #bgOverlay {
@@ -404,6 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }   
         `;
         document.head.appendChild(style);
+        ensureBackgroundVideo();
         ensureBackgroundOverlay();
         ensureGlassShell();
         // 添加赞助商信息到页脚
@@ -440,8 +573,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 } catch (e) {}
             }, 1500);
         }
-    }
-});
+    } 
+
 
     // 搜索页主题--------------------------------------------------------------------
     
@@ -579,6 +712,12 @@ document.addEventListener('DOMContentLoaded', function() {
         ensureBackgroundVideo();
         ensureBackgroundOverlay();
         ensureGlassShell();
+        // 添加赞助商信息到页脚
+        let footer = document.getElementById('footer');
+        let sponsorInfo = document.createElement('div');
+        sponsorInfo.className = 'sponsor-info';
+        sponsorInfo.innerHTML = '本站由 <a target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="../img/logo.png" width="45" height="13" style="fill: currentColor;"></a> 提供 CDN 加速/云存储服务';
+        footer.insertBefore(sponsorInfo, footer.firstChild);
     
         // 搜索框回车触发
         let input = document.getElementsByClassName("form-control subnav-search-input float-left")[0];
