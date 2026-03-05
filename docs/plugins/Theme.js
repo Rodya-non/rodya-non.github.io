@@ -7,14 +7,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // - image: 仅图片背景
     // - auto : 若“省流量/减少动态效果”则用图片，否则用视频
     const MOBILE_BREAKPOINT_PX = 720;
-    const THEME_BG_MODE_DESKTOP = 'image'; // 'video' | 'image' | 'auto'
-    const THEME_BG_MODE_MOBILE = 'image';  // 'video' | 'image' | 'auto'
+    const THEME_BG_MODE_DESKTOP = 'video'; // 'video' | 'image' | 'auto'
+    const THEME_BG_MODE_MOBILE = 'video';  // 'video' | 'image' | 'auto'
 
     // 资源路径（相对 docs/）
-    const THEME_BG_IMAGE_DESKTOP = '/img/war.jpg';
-    const THEME_BG_VIDEO_DESKTOP = '/img/war.jpg';
-    const THEME_BG_IMAGE_MOBILE = '/img/war.jpg'; // 建议换更小体积的图片
-    const THEME_BG_VIDEO_MOBILE = '/img/war.jpg'; // 手机端如需视频可换更小体积
+    const THEME_BG_IMAGE_DESKTOP = '/img/电脑2.jpg';
+    const THEME_BG_VIDEO_DESKTOP = '/img/电脑1.mp4';
+    const THEME_BG_IMAGE_MOBILE = '/img/手机1.jpg'; // 建议换更小体积的图片
+    const THEME_BG_VIDEO_MOBILE = '/img/手机2.mp4'; // 手机端如需视频可换更小体积
 
     // 更稳：优先使用 currentScript（某些环境 querySelector 取不到自己）
     const themeScriptSrc = (document.currentScript && document.currentScript.src)
@@ -539,8 +539,6 @@ document.addEventListener('DOMContentLoaded', function() {
         ensureBackgroundVideo();
         ensureBackgroundOverlay();
         ensureGlassShell();
-     
-        }
     } 
 
 
