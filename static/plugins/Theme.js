@@ -210,10 +210,10 @@ document.addEventListener('DOMContentLoaded', function() {
             line-height: 1.05;
             text-decoration: none;
             color: transparent;
-            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(132, 170, 255, 0.98));
+            background: linear-gradient(180deg, rgba(18, 18, 18, 0.95), rgba(48, 48, 48, 0.95));
             -webkit-background-clip: text;
             background-clip: text;
-            text-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+            text-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
 
         /* 图标：放在名字这一行的右侧 */
@@ -287,22 +287,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         /* 强玻璃拟态容器（避免影响 fixed 背景） */
-        #glassShell {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 44px;
-            background: rgba(255, 255, 255, 0.14);
-            border: 1px solid rgba(255, 255, 255, 0.26);
-            border-radius: 18px;
-            box-shadow:
-                0 28px 90px rgba(0, 0, 0, 0.36),
-                inset 0 1px 0 rgba(255, 255, 255, 0.18);
-            backdrop-filter: blur(20px) saturate(1.35);
-            -webkit-backdrop-filter: blur(20px) saturate(1.35);
-        }
+       #glassShell {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 44px;
+    /* 提高背景白色不透明度，从0.14→0.28，更白且保留通透感 */
+    background: rgba(255, 255, 255, 0.28);
+    /* 边框不透明度从0.26→0.42，增强玻璃边框的层次感 */
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    border-radius: 18px;
+    /* 微调阴影：降低外阴影深度，增强内阴影的通透感，保留拟态质感 */
+    box-shadow:
+        0 28px 90px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.32);
+    /* 降低模糊度避免文字糊掉，饱和度微调，平衡通透感 */
+    backdrop-filter: blur(16px) saturate(1.25);
+    -webkit-backdrop-filter: blur(16px) saturate(1.25);
+}
 
         @media (max-width: ${MOBILE_BREAKPOINT_PX}px), (hover: none) and (pointer: coarse) {
             body {
