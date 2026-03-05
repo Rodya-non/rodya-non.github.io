@@ -300,9 +300,9 @@ document.addEventListener('DOMContentLoaded', function() {
     margin: 0 auto;
     padding: 44px;
     /* 提高背景白色不透明度，从0.14→0.28，更白且保留通透感 */
-    background: rgba(255, 255, 255, 0.56);
+    background: rgba(255, 255, 255, 0.70);
     /* 边框不透明度从0.26→0.42，增强玻璃边框的层次感 */
-    border: 1px solid rgba(255, 255, 255, 0.70);
+    border: 1px solid rgba(255, 255, 255, 0.84);
     border-radius: 18px;
     /* 微调阴影：降低外阴影深度，增强内阴影的通透感，保留拟态质感 */
     box-shadow:
@@ -462,8 +462,8 @@ document.addEventListener('DOMContentLoaded', function() {
             max-width: 900px;
             margin: 0 auto;
             padding: 44px;
-            background: rgba(255, 255, 255, 0.56);
-            border: 1px solid rgba(255, 255, 255, 0.70);
+            background: rgba(255, 255, 255, 0.70);
+            border: 1px solid rgba(255, 255, 255, 0.84);
             border-radius: 18px;
             box-shadow:
                 0 28px 90px rgba(0, 0, 0, 0.36),
@@ -606,8 +606,8 @@ document.addEventListener('DOMContentLoaded', function() {
             max-width: 900px;
             margin: 0 auto;
             padding: 44px;
-            background: rgba(255, 255, 255, 0.56);
-            border: 1px solid rgba(255, 255, 255, 0.70);
+            background: rgba(255, 255, 255, 0.70);
+            border: 1px solid rgba(255, 255, 255, 0.84);
             border-radius: 18px;
             box-shadow:
                 0 28px 90px rgba(0, 0, 0, 0.36),
