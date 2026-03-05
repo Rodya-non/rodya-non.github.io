@@ -267,31 +267,12 @@ document.addEventListener('DOMContentLoaded', function() {
             -webkit-backdrop-filter: blur(10px) saturate(1.15);
         }
 
-        /* 鼠标放到博客标题后会高亮 */
-        .SideNav-item:hover {
-            background: linear-gradient(135deg, rgba(195, 228, 227, 0.72), rgba(255, 255, 255, 0.55));
-            border-radius: 12px;
-            transform: translateY(-1px) scale(1.01);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.16);
-        }
-
-        .SideNav-item {
-            transition: 0.18s ease;
-        }
-
         /* 分页条 */
         .pagination a:hover, .pagination a:focus, .pagination span:hover, .pagination span:focus, .pagination em:hover, .pagination em:focus {
             border-color: rebeccapurple;
         }
 
         /* 赞助商信息样式 */
-        .sponsor-info {
-            text-align: center;
-            margin-top: 20px;
-            font-size: small;
-            color: #666;
-        }
-        `;
         document.head.appendChild(style);
         ensureBackgroundOverlay();
         ensureGlassShell();
@@ -598,12 +579,6 @@ document.addEventListener('DOMContentLoaded', function() {
         ensureBackgroundVideo();
         ensureBackgroundOverlay();
         ensureGlassShell();
-        // 添加赞助商信息到页脚
-        let footer = document.getElementById('footer');
-        let sponsorInfo = document.createElement('div');
-        sponsorInfo.className = 'sponsor-info';
-        sponsorInfo.innerHTML = '本站由 <a target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="../img/logo.png" width="45" height="13" style="fill: currentColor;"></a> 提供 CDN 加速/云存储服务';
-        footer.insertBefore(sponsorInfo, footer.firstChild);
     
         // 搜索框回车触发
         let input = document.getElementsByClassName("form-control subnav-search-input float-left")[0];
