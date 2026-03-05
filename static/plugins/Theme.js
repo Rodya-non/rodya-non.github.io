@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 资源路径（相对 docs/）
     const THEME_BG_IMAGE_DESKTOP = '/img/war.jpg';
-    const THEME_BG_IMAGE_MOBILE = '/img/手机1.jpg'; // 建议换更小体积的图片
+    const THEME_BG_IMAGE_MOBILE = '/img/war.jpg'; // 建议换更小体积的图片
 
     // 更稳：优先使用 currentScript（某些环境 querySelector 取不到自己）
     const themeScriptSrc = (document.currentScript && document.currentScript.src)
