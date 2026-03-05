@@ -207,7 +207,12 @@ document.addEventListener('DOMContentLoaded', function() {
             font-weight: 600;
             letter-spacing: 0.02em;
             font-size: clamp(40px, 3.2vw, 44px);
-            line-height: 1.05;
+            /* 核心修改：提高行高，给下伸字符留空间，1.2 既足够显示又不破坏紧凑感 */
+    line-height: 1.2;
+    /* 新增：确保文字垂直方向不被裁切（兜底） */
+    overflow: visible;
+    /* 新增：微调文字位置，避免底部仍有轻微遮挡 */
+    padding-bottom: 2px;
             text-decoration: none;
             color: transparent;
             background: linear-gradient(180deg, rgba(18, 18, 18, 0.95), rgba(48, 48, 48, 0.95));
@@ -295,9 +300,9 @@ document.addEventListener('DOMContentLoaded', function() {
     margin: 0 auto;
     padding: 44px;
     /* 提高背景白色不透明度，从0.14→0.28，更白且保留通透感 */
-    background: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.42);
     /* 边框不透明度从0.26→0.42，增强玻璃边框的层次感 */
-    border: 1px solid rgba(255, 255, 255, 0.42);
+    border: 1px solid rgba(255, 255, 255, 0.56);
     border-radius: 18px;
     /* 微调阴影：降低外阴影深度，增强内阴影的通透感，保留拟态质感 */
     box-shadow:
