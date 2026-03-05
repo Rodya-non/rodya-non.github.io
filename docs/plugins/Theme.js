@@ -462,8 +462,8 @@ document.addEventListener('DOMContentLoaded', function() {
             max-width: 900px;
             margin: 0 auto;
             padding: 44px;
-            background: rgba(255, 255, 255, 0.14);
-            border: 1px solid rgba(255, 255, 255, 0.26);
+            background: rgba(255, 255, 255, 0.42);
+            border: 1px solid rgba(255, 255, 255, 0.56);
             border-radius: 18px;
             box-shadow:
                 0 28px 90px rgba(0, 0, 0, 0.36),
