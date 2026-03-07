@@ -7,11 +7,11 @@
     <link href='/plugins/primer.css' rel='stylesheet' />
     <script src='/plugins/Theme.js'></script><script type='text/javascript'>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, 'clarity', 'script', 'pss6qz1yjn');</script>
     <link rel="icon" href="/img/2-2.jpg">
-<meta name="description" content="## 流水账
+<meta name="description" content="## 1 流水账
 
 **报错**：在调用api的时候返回60020，并提示ip不允许。">
 <meta property="og:title" content="企业微信消息推送-60020错误码">
-<meta property="og:description" content="## 流水账
+<meta property="og:description" content="## 1 流水账
 
 **报错**：在调用api的时候返回60020，并提示ip不允许。">
 <meta property="og:type" content="article">
@@ -84,21 +84,21 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><h2>流水账</h2>
+<div class="markdown-body" id="postBody"><h2>1 流水账</h2>
 <p><strong>报错</strong>：在调用api的时候返回60020，并提示ip不允许。</p>
 <p><strong>解决</strong>：查阅后判断为没有写回调接口，有回调接口也就意味着要内网穿透，并且根据网上博客显示企业微信普通的内网穿透工具会被判为第三方工具审验不通过。所以得整个域名自己弄个内网穿透，于是去阿里云斥1元巨资买了一个域名。（中途发现<strong>cloudflare+github page+域名</strong>的组合拳免费搭建blog，看了好一会儿。）可能是学生的缘故，域名实名审核很快，五分钟都不到就审好了。</p>
 <p>一开始用zoretier搞内网穿透，但发现这玩意是给组局域网的，然后开始用frp。frp搭建网上教程很全。<br>
 然后就是绑定域名到企业微信，docker 一个小nignx服务把他给你的txt文件挂上去就行了。然后就可以配置信任ip了。<br>
 最后本来应该开始编写回调接口的，但是打开idea习惯性的启动了test，发现服务通了。😁</p>
 <p>原来只开发简单发送消息不用回调接口，配置好域名和信任ip白名单就行了。那我只能说前方的技术那下次再来探索吧。用自己的话总结一遍吧（存在海量搬运）。</p>
-<h2>ubuntu的特点</h2>
+<h2>2 ubuntu的特点</h2>
 <ol>
 <li>ubuntu 用户默认ubuntu而不是root</li>
 <li>~ 是 /home/ubuntu。😅</li>
 <li>权限低 systemctl 时记得加sudo  或者sudo -i，不然让你库库输密码</li>
 </ol>
-<h2>域名绑定国内版 （附企业微信绑定）</h2>
-<h4>域名</h4>
+<h2>3 域名绑定国内版 （附企业微信绑定）</h2>
+<h3>3.1 域名</h3>
 <ol>
 <li>买域名</li>
 <li>实名</li>
@@ -106,7 +106,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>再去云服务器的域名板块绑定一下</li>
 <li>ping 一下验证</li>
 </ol>
-<h4>企业微信</h4>
+<h3>3.2 企业微信</h3>
 <ol>
 <li>公司名乱取就行，不要营业执照之类的</li>
 <li>找到应用管理 - 应用管理 -自建应用</li>
@@ -114,20 +114,20 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>让ai写个docker部署个nignx挂上该文件（验证完就可以删了）</li>
 <li>验证成功就可以绑ip了，<code class="notranslate">企业可信IP</code>绑你本机的ip。<code class="notranslate">curl myip.ipip.net</code></li>
 </ol>
-<h2>内网穿透 frp</h2>
-<h3>参考文献</h3>
+<h2>4 内网穿透 frp</h2>
+<h3>4.1 参考文献</h3>
 <p><a href="https://blog.csdn.net/weixin_43213815/article/details/121336968?spm=1001.2014.3001.5506" rel="nofollow">1. 使用frp配置内网</a></p>
 <p><a href="https://hoshiroko.com/posts/course/install-frp" rel="nofollow">2. Frp 0.52及以上版本的全系统保姆级教程(包含frps和frpc的搭建与使用) - 薄荷の小屋</a></p>
 <p><a href="https://blog.csdn.net/ziqibit/article/details/135598796" rel="nofollow">3. 新版0.65.0  frp 内网穿透 （linux+windows）+bash脚本</a></p>
-<h3>Server 带公网ip的云服务器</h3>
+<h3>4.2 Server 带公网ip的云服务器</h3>
 <p>云服务器</p>
-<h4>安装</h4>
+<h4>4.2.1 安装</h4>
 <div class="highlight highlight-source-shell"><pre class="notranslate">wget https://github.com/fatedier/frp/releases/download/v0.65.0/frp_0.65.0_linux_amd64.tar.gz
 
 tar -zxvf frp_0.65.0_linux_amd64.tar.gz
 
 cp -r frp_0.65.0_linux_amd64 frp</pre></div>
-<h4>编辑toml配置文件</h4>
+<h4>4.2.2 编辑toml配置文件</h4>
 <div class="highlight highlight-source-shell"><pre class="notranslate">vim frps.toml
 
 bindPort = 7000            <span class="pl-c"><span class="pl-c">#</span>服务端监听端口 </span>
@@ -141,10 +141,10 @@ webServer.user = <span class="pl-s"><span class="pl-pds">"</span>abc<span class=
 webServer.password = <span class="pl-s"><span class="pl-pds">"</span>abcdefg123456<span class="pl-pds">"</span></span> 
 allowPorts = [ { start = 10000, end = 15000 }, <span class="pl-c"><span class="pl-c">#</span>端口范围设置为10000-15000可用 </span>
                { single = 25565 } ]            <span class="pl-c"><span class="pl-c">#</span>单端口设置，指定25565端口可用</span></pre></div>
-<h4>test</h4>
+<h4>4.2.3 test</h4>
 <p>测一下, ctrl c 退出</p>
 <div class="highlight highlight-source-shell"><pre class="notranslate">./frps -c ./frps.toml</pre></div>
-<h4>编写系统管理配置文件</h4>
+<h4>4.2.4 编写系统管理配置文件</h4>
 <div class="highlight highlight-source-shell"><pre class="notranslate">vim /lib/systemd/system/frps.service
 
 [Unit]
@@ -161,17 +161,17 @@ RestartSec=5
 
 [Install]
 WantedBy=multi-user.target</pre></div>
-<h4>设置系统启动</h4>
+<h4>4.2.5 设置系统启动</h4>
 <div class="highlight highlight-source-shell"><pre class="notranslate">systemctl <span class="pl-c1">enable</span> frps    <span class="pl-c"><span class="pl-c">#</span>开启开机自启动frps服务 </span>
 systemctl disable frps   <span class="pl-c"><span class="pl-c">#</span>关闭开机自启动frps服务 </span>
 systemctl start frps     <span class="pl-c"><span class="pl-c">#</span>启动frps服务 </span>
 systemctl stop frps      <span class="pl-c"><span class="pl-c">#</span>停止frps服务 </span>
 systemctl status frps    <span class="pl-c"><span class="pl-c">#</span>查看frps服务状态</span>
 ps -ef <span class="pl-k">|</span> grep frp <span class="pl-k">|</span> grep -v grep  <span class="pl-c"><span class="pl-c">#</span> ps也可以看看</span></pre></div>
-<h3>客户端windows，本地电脑</h3>
-<h4>安装</h4>
+<h3>4.3 客户端windows，本地电脑</h3>
+<h4>4.3.1 安装</h4>
 <p>github下个对应版本的压缩包就行了amd</p>
-<h4>配置frpc.toml文件，记得是c</h4>
+<h4>4.3.2 配置frpc.toml文件，记得是c</h4>
 <div class="highlight highlight-source-shell"><pre class="notranslate">serverAddr = <span class="pl-s"><span class="pl-pds">"</span>x.x.x.x<span class="pl-pds">"</span></span> <span class="pl-c"><span class="pl-c">#</span>服务器地址 </span>
 serverPort = 7000      <span class="pl-c"><span class="pl-c">#</span>服务器端口</span>
 auth.method = <span class="pl-s"><span class="pl-pds">"</span>token<span class="pl-pds">"</span></span>          <span class="pl-c"><span class="pl-c">#</span>服务端连接身份认证，默认</span>
@@ -182,7 +182,7 @@ name = <span class="pl-s"><span class="pl-pds">"</span>xxx<span class="pl-pds">"
 localIP = <span class="pl-s"><span class="pl-pds">"</span>xxx.xxx.xxx.xxx<span class="pl-pds">"</span></span>  <span class="pl-c"><span class="pl-c">#</span>本地IP地址，如果是本机就127.0.0.1 </span>
 localPort = xxx              <span class="pl-c"><span class="pl-c">#</span>本地端口，本地服务端口，比如mc服务器端口25565 </span>
 remotePort = xxxxx           <span class="pl-c"><span class="pl-c">#</span>远程端口，连接隧道时用的端口</span></pre></div>
-<h4>启动!!!</h4>
+<h4>4.3.3 启动!!!</h4>
 <p>windows cmd启动，配置开机自启动请参考第2篇</p>
 <div class="highlight highlight-source-shell"><pre class="notranslate">frpc -c frpc.toml  </pre></div></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
