@@ -1,6 +1,6 @@
 crud时create_time和update_time重复处理的优化。
 
-## 数据库表结构
+## 1 数据库表结构处理
 直接建表时使用字段控制更新规则，简单省事，自己码项目可以使用这个。
 ```sql
 -- 添加创建时间字段（仅插入时赋值） 
@@ -11,7 +11,7 @@ ALTER TABLE `user`
 ADD COLUMN `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间' AFTER `create_time`;
 ```
 
-## aop
+## 2 aop处理
 苍穹外卖的实现方式。一般配合其他要更新的参数一起切面才有意义。
 用户请求时发送token，jwt解析后用ThreadLocal存下用户信息，利用aop把userId和time等信息一起更新。
 
