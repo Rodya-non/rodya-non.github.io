@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="github-light" data-light-theme="light_tritanopia" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='/plugins/primer.css' rel='stylesheet' />
+    <script src='/plugins/Theme.js'></script><script type='text/javascript'>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, 'clarity', 'script', 'pss6qz1yjn');</script>
+    <link rel="icon" href="/img/2-2.jpg">
+<meta name="description" content="# 1 注解 Annotation
+
+场景类比：如果将程序看作商品，注解就是特意贴在商品上面的小标签，比如超市促销打八折。">
+<meta property="og:title" content="注解和反射">
+<meta property="og:description" content="# 1 注解 Annotation
+
+场景类比：如果将程序看作商品，注解就是特意贴在商品上面的小标签，比如超市促销打八折。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://rodya-non.github.io/post/4.html">
+<meta property="og:image" content="/img/2-2.jpg">
+<title>注解和反射</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">注解和反射</h1>
+<div class="title-right">
+    <a href="https://rodya-non.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题"style="display:none;">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h1>1 注解 Annotation</h1>
+<p>场景类比：如果将程序看作商品，注解就是特意贴在商品上面的小标签，比如超市促销打八折。也就是说他和商品本身没什么关系，只是需要理货员需要把它放到特价区之类的，顾客之类的。</p>
+<h2>1.1 官方注解</h2>
+<h3>1.1.1 内置注解</h3>
+<p>内置注解就是java官方提供的3个直接可使用的注解，可以看到都是处理编译问题，帮忙检查的注解。</p>
+<pre class="notranslate"><code class="notranslate">@Override 重写注解
+
+@Deprecated  不推荐使用该方法，一般用在在即将弃用的老方法上
+
+@SuppressWarnings("all")  如果方法没有被调用，会灰色并提示，这个注解会取消这个提示
+</code></pre>
+<h3>1.1.2 元注解</h3>
+<p>用来解释注解的注解。只能作用于注解上。</p>
+<pre class="notranslate"><code class="notranslate">@Target()  空间，注解可以用在什么地方，方法上？类上？
+
+@Retention()  时间，啥时候还有用？三阶段，SOURCE &lt; CLASS &lt; RUNTIME。自定义注解一般都需要在runtime还有效
+
+@Documented 表示是否将我们的注解生成在javadoc中
+
+@Inherited 子类可以继承父类的注解
+</code></pre>
+<h2>2.2 自定义注解</h2>
+<p><a class="user-mention notranslate" data-hovercard-type="user" data-hovercard-url="/users/interface/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/interface">@interface</a> 自动继承<code class="notranslate">java.lang.annotation.Annotation</code><br>
+直接以示例展示注解的写法</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//存在默认值设置可以不传参则是默认值，如果没有default，则必须传。</span>
+<span class="pl-c1">@</span><span class="pl-c1">MyAnnotation</span>(<span class="pl-s1">name</span> = <span class="pl-s">"Holmes"</span>,<span class="pl-s1">schools</span> = {<span class="pl-s">"University of Cambridge"</span>})
+<span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">test</span>(){}
+
+<span class="pl-c1">@</span><span class="pl-c1">Target</span>({<span class="pl-smi">ElementType</span>.<span class="pl-c1">TYPE</span>,<span class="pl-smi">ElementType</span>.<span class="pl-c1">METHOD</span>})
+<span class="pl-c1">@</span><span class="pl-c1">Retention</span>(<span class="pl-smi">RetentionPolicy</span>.<span class="pl-c1">RUNTIME</span>)
+@interface <span class="pl-s1">MyAnnotation</span>{
+    <span class="pl-smi">String</span> <span class="pl-s1">name</span>();
+    <span class="pl-smi">int</span> <span class="pl-s1">age</span>() <span class="pl-k">default</span> <span class="pl-c1">0</span>;
+    <span class="pl-smi">int</span> <span class="pl-s1">id</span>() <span class="pl-k">default</span> -<span class="pl-c1">1</span>;
+    
+    <span class="pl-smi">String</span>[] <span class="pl-s1">schools</span>();
+}
+
+<span class="pl-c">// 但一般不会定义这么复杂的注解，如果值只有一个可以用value，这样可以省略 value。不然得键值对应。</span>
+
+
+<span class="pl-c1">@</span><span class="pl-c1">MyAnnotation2</span>(<span class="pl-s">"Holmes"</span>)
+<span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">test</span>(){}
+
+
+<span class="pl-c1">@</span><span class="pl-c1">Taget</span>({<span class="pl-smi">ElemenType</span>.<span class="pl-c1">TYPE</span>,<span class="pl-smi">ElementType</span>.<span class="pl-c1">METHOD</span>})
+<span class="pl-c1">@</span><span class="pl-c1">Retention</span>(<span class="pl-smi">RetentionPolicy</span>.<span class="pl-c1">RUNTIME</span>)
+@interface <span class="pl-s1">MyAnnotation2</span>{
+    <span class="pl-smi">value</span><span class="pl-s1"></span>();
+}
+</pre></div>
+<p>众所周知标签和商品是无关的，我们怎么获得这个标签呢？是技术层面是什么东西支持呢？</p>
+<h1>2 反射 Reflection</h1>
+<p>经典动态语言python可以随意操控，自由度极高，但牺牲了效率。需要编译的静态语言java也想像动态语言一样运行时操控程序，修改类型，怎么办呢。<br>
+于是反射技术应运而生，也就是静态语言java的动态技术。</p>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-c"># 变量a可以随时改类型，无编译检查 </span>
+<span class="pl-s1">a</span> <span class="pl-c1">=</span> <span class="pl-c1">10</span> <span class="pl-c"># 整数 </span>
+<span class="pl-s1">a</span> <span class="pl-c1">=</span> <span class="pl-s">"hello"</span> <span class="pl-c"># 字符串（无报错） </span>
+<span class="pl-s1">a</span> <span class="pl-c1">=</span> [<span class="pl-c1">1</span>,<span class="pl-c1">2</span>,<span class="pl-c1">3</span>] <span class="pl-c"># 列表（无报错） # 错误只有运行时才暴露 </span>
+<span class="pl-k">def</span> <span class="pl-en">add</span>(<span class="pl-s1">x</span>, <span class="pl-s1">y</span>): 
+    <span class="pl-k">return</span> <span class="pl-s1">x</span> <span class="pl-c1">+</span> <span class="pl-s1">y</span> <span class="pl-en">add</span>(<span class="pl-c1">10</span>, <span class="pl-s">"20"</span>) <span class="pl-c"># 运行时才抛出TypeError，编译阶段完全无提示</span></pre></div>
+<h2>2.1 获取Class</h2>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//hashcode和Name都一样,getName的话为 包名.Student</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">clazzTest</span> {  
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>) <span class="pl-k">throws</span> <span class="pl-smi">ClassNotFoundException</span> {  
+        <span class="pl-smi">Person</span> <span class="pl-s1">person</span> = <span class="pl-k">new</span> <span class="pl-smi">Student</span>();  
+        
+        <span class="pl-c">// 方式1：通过其new出来的对象获取class  </span>
+        <span class="pl-smi">Class</span> <span class="pl-s1">c1</span> = <span class="pl-s1">person</span>.<span class="pl-en">getClass</span>();  
+  
+        <span class="pl-c">// 方式2： 知道在哪个包，获得其class </span>
+        <span class="pl-smi">Class</span> <span class="pl-s1">c2</span> = <span class="pl-smi">Class</span>.<span class="pl-en">forName</span>(<span class="pl-s">"tech.insight.Student"</span>);  
+  
+        <span class="pl-c">// 方式3：  直接拿到class，有class和能操作class是两个概念哦，初学者不要搞混了。</span>
+        <span class="pl-smi">Class</span>&lt;<span class="pl-smi">Student</span>&gt; <span class="pl-s1">c3</span> = <span class="pl-smi">Student</span>.<span class="pl-k">class</span>;  
+  
+        <span class="pl-c">// 方式4：  包装类的特殊方法，返回 int</span>
+        <span class="pl-smi">Class</span> <span class="pl-s1">c4</span> = <span class="pl-smi">Integer</span>.<span class="pl-c1">TYPE</span>;  
+
+        <span class="pl-c">// 方式5：   拿到方法的父类</span>
+        <span class="pl-smi">Class</span> <span class="pl-s1">c5</span> = <span class="pl-s1">c1</span>.<span class="pl-en">getSuperclass</span>();  
+    }  
+}  
+  
+<span class="pl-k">class</span> <span class="pl-smi">Person</span>{  
+    <span class="pl-smi">String</span> <span class="pl-s1">name</span>;  
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">person</span>(){  
+    }  
+  
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">person</span>(<span class="pl-smi">String</span> <span class="pl-s1">name</span>){  
+          <span class="pl-smi">this</span>.<span class="pl-s1">name</span> = <span class="pl-s1">name</span>;  
+    }  
+  
+    <span class="pl-c1">@</span><span class="pl-c1">Override</span>  
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">toString</span>() {  
+        <span class="pl-k">return</span> <span class="pl-s">"Person{"</span> +  
+                <span class="pl-s">"name='"</span> + <span class="pl-s1">name</span> + <span class="pl-s">'\''</span> +  
+                <span class="pl-s">'}'</span>;  
+    }  
+};  
+<span class="pl-k">class</span> <span class="pl-smi">Student</span> <span class="pl-k">extends</span> <span class="pl-smi">Person</span>{  
+    <span class="pl-k">public</span> <span class="pl-smi">Student</span>(){  
+        <span class="pl-smi">this</span>.<span class="pl-s1">name</span> = <span class="pl-s">"学生"</span>;  
+    }  
+};  
+<span class="pl-k">class</span> <span class="pl-smi">Teacher</span> <span class="pl-k">extends</span> <span class="pl-smi">Person</span>{  
+    <span class="pl-k">public</span> <span class="pl-smi">Teacher</span>(){  
+        <span class="pl-smi">this</span>.<span class="pl-s1">name</span> = <span class="pl-s">"老师"</span>;  
+    }  
+};</pre></div>
+<h2>2.2 什么能直接作为Class获取</h2>
+<ol>
+<li><code class="notranslate">Class</code> 对象本质是 Java 中「类型」的抽象表示，只要是能作为「类型」声明变量 / 参数的，都有 <code class="notranslate">Class</code> 对象。</li>
+<li>interface 接口</li>
+<li>[] 数组</li>
+<li>enum 枚举</li>
+<li>annotation 注解<a class="user-mention notranslate" data-hovercard-type="user" data-hovercard-url="/users/interface/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/interface">@interface</a></li>
+<li>primitive type 基本数据类型</li>
+<li>void</li>
+</ol>
+<p><strong>附上不能被直接获取更一目了然一点，不过这些一般可以通过先获取类，再通过Class.getXXX获得</strong></p>
+<ol>
+<li>方法 <code class="notranslate">String.length()</code></li>
+<li>字段<code class="notranslate">String.value</code></li>
+<li>. 构造器<code class="notranslate">new String()</code></li>
+<li>方法参数<code class="notranslate">add(int x, String y)</code> 中的 <code class="notranslate">x</code>/<code class="notranslate">y</code></li>
+<li>局部变量方法内的 <code class="notranslate">int a = 10</code> 中的 <code class="notranslate">a</code>无法通过反射直接获取</li>
+<li>包<code class="notranslate">java.lang</code>、<code class="notranslate">com.example</code></li>
+<li>注解的属性的value<code class="notranslate">@MyAnnotation(value = "test")</code></li>
+</ol>
+<h2>2.3 java.lang.reflect 操作Class对象</h2>
+<h3>2.3.1 <code class="notranslate">Class</code>类</h3>
+<p>这和2.1的获得Class不要搞混了，那个相当于"new"出class，这个才是对其的操作 !!!</p>
+<ul>
+<li><strong>功能</strong>：表示类的对象，提供了获取类信息的方法，如字段、方法、构造函数等。</li>
+<li><strong>主要方法</strong>：
+<ul>
+<li><code class="notranslate">getFields()</code>：获取所有公共字段。</li>
+<li><code class="notranslate">getDeclaredFields()</code>：获取所有声明的字段，包括私有字段。</li>
+<li><code class="notranslate">getDeclaredField()</code> :  单个获取，传参拿指定的方法，其他方法差不多，仅演示一次这种写法。</li>
+<li><code class="notranslate">getMethods()</code>：获取所有公共方法。</li>
+<li><code class="notranslate">getDeclaredMethods()</code>：获取所有声明的方法，包括私有方法。</li>
+<li><code class="notranslate">getConstructors()</code>：获取所有公共构造函数。</li>
+<li><code class="notranslate">getDeclaredConstructors()</code>：获取所有声明的构造函数，包括私有构造函数。</li>
+<li><code class="notranslate">getSuperclass()</code>：获取类的父类。</li>
+<li><code class="notranslate">getInterfaces()</code>：获取类实现的所有接口。</li>
+</ul>
+</li>
+</ul>
+<p><strong>显而易见的get了很多不同的东西，那你的用对应的东西接啊，于是就java.lang.reflect也应该提供对应的<code class="notranslate">Field</code> 类 ， <code class="notranslate">Method</code> 类，<code class="notranslate">Constructor</code> 类和其操作</strong></p>
+<h3>2.3.2 <code class="notranslate">Field</code> 类</h3>
+<ul>
+<li><strong>功能</strong>：表示类的字段（属性），提供了访问和修改字段值的方法。</li>
+<li><strong>主要方法</strong>：
+<ul>
+<li><code class="notranslate">get(Object obj)</code>：获取指定对象的字段值。</li>
+<li><code class="notranslate">set(Object obj, Object value)</code>：设置指定对象的字段值。</li>
+<li><code class="notranslate">getType()</code>：获取字段的数据类型。</li>
+<li><code class="notranslate">getModifiers()</code>：获取字段的修饰符（如 public、private）。</li>
+</ul>
+</li>
+</ul>
+<h3> 2.3.3 <code class="notranslate">Method</code> 类</h3>
+<ul>
+<li><strong>功能</strong>：表示类的方法，提供了调用方法的能力。</li>
+<li><strong>主要方法</strong>：
+<ul>
+<li><code class="notranslate">invoke(Object obj, Object... args)</code>：调用指定对象的方法。</li>
+<li><code class="notranslate">getReturnType()</code>：获取方法的返回类型。</li>
+<li><code class="notranslate">getParameterTypes()</code>：获取方法的参数类型。</li>
+<li><code class="notranslate">getModifiers()</code>：获取方法的修饰符（如 public、private）。</li>
+</ul>
+</li>
+</ul>
+<h3>2.3.4 <code class="notranslate">Constructor</code> 类</h3>
+<ul>
+<li><strong>功能</strong>：表示类的构造函数，提供了创建对象的能力。</li>
+<li><strong>主要方法</strong>：
+<ul>
+<li><code class="notranslate">newInstance(Object... initargs)</code>：创建一个新实例，使用指定的构造函数参数。</li>
+<li><code class="notranslate">getParameterTypes()</code>：获取构造函数的参数类型。</li>
+<li><code class="notranslate">getModifiers()</code>：获取构造函数的修饰符（如 public、private）。</li>
+</ul>
+</li>
+</ul>
+<h3>2.3.5 拓展</h3>
+<p>这篇文章只介绍基础用法，实际上为了支持泛型，method还有getGenericParameterTypes()方法专门拿泛型，并且有ParameterizedType类可以用来处理泛型。</p>
+<p>总而言之，反射可以让java为所欲为。字段私有？<code class="notranslate">.setAccessible(true)</code>强行拿权限!!!</p>
+<h1>3 反射实现注解</h1>
+<p>注意 <code class="notranslate">Annotation</code>是 <code class="notranslate">java.lang.annotation</code>包提供的</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// 获取其注解</span>
+<span class="pl-smi">Annotation</span>[] <span class="pl-s1">annotations</span> = <span class="pl-s1">class111</span>.<span class="pl-en">getAnnoctations</span>();
+
+<span class="pl-c">// 获取其值</span>
+<span class="pl-s1">annotation</span>.<span class="pl-en">value</span>();
+
+<span class="pl-c">// 那么有聪明的老铁就要问了，那注解写在字段上咋办呢</span>
+
+<span class="pl-c">// 1.用反射的方法拿到该字段。   假设class1是类，name是那个字段名。</span>
+<span class="pl-smi">Field</span> <span class="pl-s1">f</span> = <span class="pl-s1">class1</span>.<span class="pl-en">getDeclaredField</span>(<span class="pl-s">"name"</span>);
+<span class="pl-c">// 2.该字段作为一个类又能就能进行和普通class一样的注解操作啦。   假设Fieldtest是name的字段注解名。</span>
+<span class="pl-smi">Fieldtest</span> <span class="pl-s1">annotation</span> = <span class="pl-s1">f</span>.<span class="pl-en">getAnnotation</span>(<span class="pl-smi">Fieldtest</span>.<span class="pl-k">class</span>);
+<span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">annotation</span>.<span class="pl-en">value</span>());<span class="pl-c">//拿到注解值啦</span></pre></div>
+<p>这个示例只是初现端倪，我为了示例的简单，直接指定了，实际上<code class="notranslate">Fiedtest</code>，<code class="notranslate">name</code>，这些东西都不用你事先知道，你也可以用反射获取他们，然后利用反射得到的东西继续操作，还可以根据反射得到的东西的得到的东西。。。。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://rodya-non.github.io">non非null</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行 "+diffDay+" 天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+<script src='/plugins/ArticleTOC.js'></script><script src='/plugins/lightbox.js'></script><script>document.querySelectorAll('a').forEach(anchor => {const img = anchor.querySelector('img');if (img && img.hasAttribute('data-canonical-src')) {const canonicalSrc = img.getAttribute('data-canonical-src');anchor.setAttribute('href', canonicalSrc);img.setAttribute('src', canonicalSrc);img.removeAttribute('data-canonical-src');}});</script>
+
+</html>
