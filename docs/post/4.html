@@ -18,7 +18,7 @@
 <meta property="og:url" content="https://rodya-non.github.io/post/4.html">
 <meta property="og:image" content="/img/2-2.jpg">
 <title>注解和反射</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -102,92 +102,97 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <h2>2.2 自定义注解</h2>
 <p><a class="user-mention notranslate" data-hovercard-type="user" data-hovercard-url="/users/interface/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/interface">@interface</a> 自动继承<code class="notranslate">java.lang.annotation.Annotation</code><br>
 直接以示例展示注解的写法</p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//存在默认值设置可以不传参则是默认值，如果没有default，则必须传。</span>
-<span class="pl-c1">@</span><span class="pl-c1">MyAnnotation</span>(<span class="pl-s1">name</span> = <span class="pl-s">"Holmes"</span>,<span class="pl-s1">schools</span> = {<span class="pl-s">"University of Cambridge"</span>})
-<span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">test</span>(){}
+<pre lang="java" class="notranslate"><code class="notranslate">
+//存在默认值设置可以不传参则是默认值，如果没有default，则必须传。
+@MyAnnotation(name = "Holmes",schools = {"University of Cambridge"})
+public void test(){}
 
-<span class="pl-c1">@</span><span class="pl-c1">Target</span>({<span class="pl-smi">ElementType</span>.<span class="pl-c1">TYPE</span>,<span class="pl-smi">ElementType</span>.<span class="pl-c1">METHOD</span>})
-<span class="pl-c1">@</span><span class="pl-c1">Retention</span>(<span class="pl-smi">RetentionPolicy</span>.<span class="pl-c1">RUNTIME</span>)
-@interface <span class="pl-s1">MyAnnotation</span>{
-    <span class="pl-smi">String</span> <span class="pl-s1">name</span>();
-    <span class="pl-smi">int</span> <span class="pl-s1">age</span>() <span class="pl-k">default</span> <span class="pl-c1">0</span>;
-    <span class="pl-smi">int</span> <span class="pl-s1">id</span>() <span class="pl-k">default</span> -<span class="pl-c1">1</span>;
+@Target({ElementType.TYPE,ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@interface MyAnnotation{
+    String name();
+    int age() default 0;
+    int id() default -1;
     
-    <span class="pl-smi">String</span>[] <span class="pl-s1">schools</span>();
+    String[] schools();
 }
 
-<span class="pl-c">// 但一般不会定义这么复杂的注解，如果值只有一个可以用value，这样可以省略 value。不然得键值对应。</span>
+// 但一般不会定义这么复杂的注解，如果值只有一个可以用value，这样可以省略 value。不然得键值对应。
 
 
-<span class="pl-c1">@</span><span class="pl-c1">MyAnnotation2</span>(<span class="pl-s">"Holmes"</span>)
-<span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">test</span>(){}
+@MyAnnotation2("Holmes")
+public void test(){}
 
 
-<span class="pl-c1">@</span><span class="pl-c1">Taget</span>({<span class="pl-smi">ElemenType</span>.<span class="pl-c1">TYPE</span>,<span class="pl-smi">ElementType</span>.<span class="pl-c1">METHOD</span>})
-<span class="pl-c1">@</span><span class="pl-c1">Retention</span>(<span class="pl-smi">RetentionPolicy</span>.<span class="pl-c1">RUNTIME</span>)
-@interface <span class="pl-s1">MyAnnotation2</span>{
-    <span class="pl-smi">value</span><span class="pl-s1"></span>();
+@Taget({ElemenType.TYPE,ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@interface MyAnnotation2{
+    value();
 }
-</pre></div>
+
+
+</code></pre>
 <p>众所周知标签和商品是无关的，我们怎么获得这个标签呢？是技术层面是什么东西支持呢？</p>
 <h1>2 反射 Reflection</h1>
 <p>经典动态语言python可以随意操控，自由度极高，但牺牲了效率。需要编译的静态语言java也想像动态语言一样运行时操控程序，修改类型，怎么办呢。<br>
 于是反射技术应运而生，也就是静态语言java的动态技术。</p>
-<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-c"># 变量a可以随时改类型，无编译检查 </span>
-<span class="pl-s1">a</span> <span class="pl-c1">=</span> <span class="pl-c1">10</span> <span class="pl-c"># 整数 </span>
-<span class="pl-s1">a</span> <span class="pl-c1">=</span> <span class="pl-s">"hello"</span> <span class="pl-c"># 字符串（无报错） </span>
-<span class="pl-s1">a</span> <span class="pl-c1">=</span> [<span class="pl-c1">1</span>,<span class="pl-c1">2</span>,<span class="pl-c1">3</span>] <span class="pl-c"># 列表（无报错） # 错误只有运行时才暴露 </span>
-<span class="pl-k">def</span> <span class="pl-en">add</span>(<span class="pl-s1">x</span>, <span class="pl-s1">y</span>): 
-    <span class="pl-k">return</span> <span class="pl-s1">x</span> <span class="pl-c1">+</span> <span class="pl-s1">y</span> <span class="pl-en">add</span>(<span class="pl-c1">10</span>, <span class="pl-s">"20"</span>) <span class="pl-c"># 运行时才抛出TypeError，编译阶段完全无提示</span></pre></div>
+<pre lang="python" class="notranslate"><code class="notranslate"># 变量a可以随时改类型，无编译检查 
+a = 10 # 整数 
+a = "hello" # 字符串（无报错） 
+a = [1,2,3] # 列表（无报错） # 错误只有运行时才暴露 
+def add(x, y): 
+    return x + y add(10, "20") # 运行时才抛出TypeError，编译阶段完全无提示
+</code></pre>
 <h2>2.1 获取Class</h2>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//hashcode和Name都一样,getName的话为 包名.Student</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">clazzTest</span> {  
-    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>) <span class="pl-k">throws</span> <span class="pl-smi">ClassNotFoundException</span> {  
-        <span class="pl-smi">Person</span> <span class="pl-s1">person</span> = <span class="pl-k">new</span> <span class="pl-smi">Student</span>();  
+<pre lang="java" class="notranslate"><code class="notranslate">//hashcode和Name都一样,getName的话为 包名.Student
+public class clazzTest {  
+    public static void main(String[] args) throws ClassNotFoundException {  
+        Person person = new Student();  
         
-        <span class="pl-c">// 方式1：通过其new出来的对象获取class  </span>
-        <span class="pl-smi">Class</span> <span class="pl-s1">c1</span> = <span class="pl-s1">person</span>.<span class="pl-en">getClass</span>();  
+        // 方式1：通过其new出来的对象获取class  
+        Class c1 = person.getClass();  
   
-        <span class="pl-c">// 方式2： 知道在哪个包，获得其class </span>
-        <span class="pl-smi">Class</span> <span class="pl-s1">c2</span> = <span class="pl-smi">Class</span>.<span class="pl-en">forName</span>(<span class="pl-s">"tech.insight.Student"</span>);  
+        // 方式2： 知道在哪个包，获得其class 
+        Class c2 = Class.forName("tech.insight.Student");  
   
-        <span class="pl-c">// 方式3：  直接拿到class，有class和能操作class是两个概念哦，初学者不要搞混了。</span>
-        <span class="pl-smi">Class</span>&lt;<span class="pl-smi">Student</span>&gt; <span class="pl-s1">c3</span> = <span class="pl-smi">Student</span>.<span class="pl-k">class</span>;  
+        // 方式3：  直接拿到class，有class和能操作class是两个概念哦，初学者不要搞混了。
+        Class&lt;Student&gt; c3 = Student.class;  
   
-        <span class="pl-c">// 方式4：  包装类的特殊方法，返回 int</span>
-        <span class="pl-smi">Class</span> <span class="pl-s1">c4</span> = <span class="pl-smi">Integer</span>.<span class="pl-c1">TYPE</span>;  
+        // 方式4：  包装类的特殊方法，返回 int
+        Class c4 = Integer.TYPE;  
 
-        <span class="pl-c">// 方式5：   拿到方法的父类</span>
-        <span class="pl-smi">Class</span> <span class="pl-s1">c5</span> = <span class="pl-s1">c1</span>.<span class="pl-en">getSuperclass</span>();  
+        // 方式5：   拿到方法的父类
+        Class c5 = c1.getSuperclass();  
     }  
 }  
   
-<span class="pl-k">class</span> <span class="pl-smi">Person</span>{  
-    <span class="pl-smi">String</span> <span class="pl-s1">name</span>;  
-    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">person</span>(){  
+class Person{  
+    String name;  
+    public void person(){  
     }  
   
-    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">person</span>(<span class="pl-smi">String</span> <span class="pl-s1">name</span>){  
-          <span class="pl-smi">this</span>.<span class="pl-s1">name</span> = <span class="pl-s1">name</span>;  
+    public void person(String name){  
+          this.name = name;  
     }  
   
-    <span class="pl-c1">@</span><span class="pl-c1">Override</span>  
-    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">toString</span>() {  
-        <span class="pl-k">return</span> <span class="pl-s">"Person{"</span> +  
-                <span class="pl-s">"name='"</span> + <span class="pl-s1">name</span> + <span class="pl-s">'\''</span> +  
-                <span class="pl-s">'}'</span>;  
+    @Override  
+    public String toString() {  
+        return "Person{" +  
+                "name='" + name + '\'' +  
+                '}';  
     }  
 };  
-<span class="pl-k">class</span> <span class="pl-smi">Student</span> <span class="pl-k">extends</span> <span class="pl-smi">Person</span>{  
-    <span class="pl-k">public</span> <span class="pl-smi">Student</span>(){  
-        <span class="pl-smi">this</span>.<span class="pl-s1">name</span> = <span class="pl-s">"学生"</span>;  
+class Student extends Person{  
+    public Student(){  
+        this.name = "学生";  
     }  
 };  
-<span class="pl-k">class</span> <span class="pl-smi">Teacher</span> <span class="pl-k">extends</span> <span class="pl-smi">Person</span>{  
-    <span class="pl-k">public</span> <span class="pl-smi">Teacher</span>(){  
-        <span class="pl-smi">this</span>.<span class="pl-s1">name</span> = <span class="pl-s">"老师"</span>;  
+class Teacher extends Person{  
+    public Teacher(){  
+        this.name = "老师";  
     }  
-};</pre></div>
+};
+</code></pre>
 <h2>2.2 什么能直接作为Class获取</h2>
 <ol>
 <li><code class="notranslate">Class</code> 对象本质是 Java 中「类型」的抽象表示，只要是能作为「类型」声明变量 / 参数的，都有 <code class="notranslate">Class</code> 对象。</li>
@@ -268,19 +273,20 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>总而言之，反射可以让java为所欲为。字段私有？<code class="notranslate">.setAccessible(true)</code>强行拿权限!!!</p>
 <h1>3 反射实现注解</h1>
 <p>注意 <code class="notranslate">Annotation</code>是 <code class="notranslate">java.lang.annotation</code>包提供的</p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// 获取其注解</span>
-<span class="pl-smi">Annotation</span>[] <span class="pl-s1">annotations</span> = <span class="pl-s1">class111</span>.<span class="pl-en">getAnnoctations</span>();
+<pre lang="java" class="notranslate"><code class="notranslate">// 获取其注解
+Annotation[] annotations = class111.getAnnoctations();
 
-<span class="pl-c">// 获取其值</span>
-<span class="pl-s1">annotation</span>.<span class="pl-en">value</span>();
+// 获取其值
+annotation.value();
 
-<span class="pl-c">// 那么有聪明的老铁就要问了，那注解写在字段上咋办呢</span>
+// 那么有聪明的老铁就要问了，那注解写在字段上咋办呢
 
-<span class="pl-c">// 1.用反射的方法拿到该字段。   假设class1是类，name是那个字段名。</span>
-<span class="pl-smi">Field</span> <span class="pl-s1">f</span> = <span class="pl-s1">class1</span>.<span class="pl-en">getDeclaredField</span>(<span class="pl-s">"name"</span>);
-<span class="pl-c">// 2.该字段作为一个类又能就能进行和普通class一样的注解操作啦。   假设Fieldtest是name的字段注解名。</span>
-<span class="pl-smi">Fieldtest</span> <span class="pl-s1">annotation</span> = <span class="pl-s1">f</span>.<span class="pl-en">getAnnotation</span>(<span class="pl-smi">Fieldtest</span>.<span class="pl-k">class</span>);
-<span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">annotation</span>.<span class="pl-en">value</span>());<span class="pl-c">//拿到注解值啦</span></pre></div>
+// 1.用反射的方法拿到该字段。   假设class1是类，name是那个字段名。
+Field f = class1.getDeclaredField("name");
+// 2.该字段作为一个类又能就能进行和普通class一样的注解操作啦。   假设Fieldtest是name的字段注解名。
+Fieldtest annotation = f.getAnnotation(Fieldtest.class);
+System.out.println(annotation.value());//拿到注解值啦
+</code></pre>
 <p>这个示例只是初现端倪，我为了示例的简单，直接指定了，实际上<code class="notranslate">Fiedtest</code>，<code class="notranslate">name</code>，这些东西都不用你事先知道，你也可以用反射获取他们，然后利用反射得到的东西继续操作，还可以根据反射得到的东西的得到的东西。。。。</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
